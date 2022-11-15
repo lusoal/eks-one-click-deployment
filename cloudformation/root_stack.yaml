@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  AWSIAMUser:
+    Type: String
+    Description: Enter a valid IAM user or role to grant Kubernetes cluster access
+  ARNLambdaLayer:
+    Type: String
+    Description: ARN of the previously created lambda layer
+  ClusterName:
+    Type: String
+  SubnetIds:
+    Type: String
+Resources:
+  ExternalResource:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: extensions/01_activate_extension.yaml
+  EKSResources:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - ExternalResource
+    Properties:
+      TemplateURL: eks_resources/01_eks_sample_stack.yaml
+      Parameters:
+        AWSIAMUser: !Ref AWSIAMUser
+        ARNLambdaLayer: !Ref ARNLambdaLayer
+        ClusterName: !Ref ClusterName
+        SubnetIds: !Ref SubnetIds
